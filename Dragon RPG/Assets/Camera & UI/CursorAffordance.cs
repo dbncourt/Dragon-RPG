@@ -21,7 +21,7 @@ public class CursorAffordance : MonoBehaviour
         walkCursor = null;
         targetCursor = null;
         unknownCursor = null;
-        cursorHotspot = new Vector2(96, 96);
+        cursorHotspot = new Vector2(0, 0);
     }
     
     // Use this for initialization
@@ -33,7 +33,7 @@ public class CursorAffordance : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        switch (cameraRaycaster.layerHit)
+        switch (cameraRaycaster.currentLayerHit)
         {
             case Layer.Walkable:
                 Cursor.SetCursor(walkCursor, cursorHotspot, CursorMode.Auto);

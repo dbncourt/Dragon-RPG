@@ -8,10 +8,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float walkMoveStopRadius;
 
-    ThirdPersonCharacter m_Character;   // A reference to the ThirdPersonCharacter on the object
+    ThirdPersonCharacter thirdPersonCharacter;   // A reference to the ThirdPersonCharacter on the object
     CameraRaycaster cameraRaycaster;
     Vector3 currentClickTarget;
-    Vector3 m_CamForward;
+    Vector3 cameraForward;
 
     private bool isInDirectMode;
 
@@ -23,9 +23,9 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
         cameraRaycaster = Camera.main.GetComponent<CameraRaycaster>();
-        m_Character = GetComponent<ThirdPersonCharacter>();
+        thirdPersonCharacter = GetComponent<ThirdPersonCharacter>();
         currentClickTarget = transform.position;
-        m_CamForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1.0f, 0.0f, 1.0f)).normalized;
+        cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1.0f, 0.0f, 1.0f)).normalized;
     }
 
     private void FixedUpdate()
@@ -33,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.G))
         {
             isInDirectMode = !isInDirectMode;
+            currentClickTarget = transform.position;
         }
 
         if (isInDirectMode)
@@ -50,16 +51,16 @@ public class PlayerMovement : MonoBehaviour
     {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
-        Vector3  m_Move = v * m_CamForward + h * Camera.main.transform.right;
+        Vector3  movement = v * cameraForward + h * Camera.main.transform.right;
 
-        m_Character.Move(m_Move, false, false);
+        thirdPersonCharacter.Move(movement, false, false);
     }
 
     private void ProcessMouseMovement()
     {
         if (Input.GetMouseButton(0))
         {
-            switch (cameraRaycaster.layerHit)
+            switch (cameraRaycaster.currentLayerHit)
             {
                 case Layer.Walkable:
                     {
@@ -92,7 +93,7 @@ public class PlayerMovement : MonoBehaviour
         {
             vectorMovement = Vector3.zero;
         }
-        m_Character.Move(vectorMovement, false, false);
+        thirdPersonCharacter.Move(vectorMovement, false, false);
     }
 }
 
