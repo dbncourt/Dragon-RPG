@@ -7,16 +7,21 @@ public class PlayerMovement : MonoBehaviour
 {
     [SerializeField]
     private float walkMoveStopRadius;
+    [SerializeField]
+    private float attackMoveStopRadius;
 
     ThirdPersonCharacter thirdPersonCharacter;   // A reference to the ThirdPersonCharacter on the object
     CameraRaycaster cameraRaycaster;
-    Vector3 currentClickTarget;
+    Vector3 currentDestination;
     Vector3 cameraForward;
+    Vector3 clickPoint;
 
     private bool isInDirectMode;
 
     public PlayerMovement()
     {
+        walkMoveStopRadius = 0.2f;
+        attackMoveStopRadius = 5.0f;
         isInDirectMode = false;
     }
 
@@ -24,7 +29,7 @@ public class PlayerMovement : MonoBehaviour
     {
         cameraRaycaster = Camera.main.GetComponent<CameraRaycaster>();
         thirdPersonCharacter = GetComponent<ThirdPersonCharacter>();
-        currentClickTarget = transform.position;
+        currentDestination = transform.position;
         cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1.0f, 0.0f, 1.0f)).normalized;
     }
 
@@ -33,7 +38,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.G))
         {
             isInDirectMode = !isInDirectMode;
-            currentClickTarget = transform.position;
+            currentDestination = transform.position;
         }
 
         if (isInDirectMode)
@@ -56,20 +61,35 @@ public class PlayerMovement : MonoBehaviour
         thirdPersonCharacter.Move(movement, false, false);
     }
 
+    private void WalkToDestination()
+    {
+        Vector3 playerToClickPoint = currentDestination - transform.position;
+        if (playerToClickPoint.magnitude >= 0.0f)
+        {
+            thirdPersonCharacter.Move(playerToClickPoint, false, false);
+        }
+        else
+        {
+            thirdPersonCharacter.Move(Vector3.zero, false, false);
+        }
+        
+    }
+
     private void ProcessMouseMovement()
     {
         if (Input.GetMouseButton(0))
         {
+            clickPoint = cameraRaycaster.hit.point;
             switch (cameraRaycaster.currentLayerHit)
             {
                 case Layer.Walkable:
                     {
-                        currentClickTarget = cameraRaycaster.hit.point;
+                        currentDestination = ShortDestination(clickPoint, walkMoveStopRadius);
                         break;
                     }
                 case Layer.Enemy:
                     {
-                        print("Not moving to enemy");
+                        currentDestination = ShortDestination(clickPoint, attackMoveStopRadius);
                         break;
                     }
                 case Layer.RaycastEndStop:
@@ -82,18 +102,26 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
-        Vector3 playerToClickPoint = currentClickTarget - transform.position;
-        Vector3 vectorMovement;
+        WalkToDestination();
 
-        if (playerToClickPoint.magnitude >= walkMoveStopRadius)
-        {
-            vectorMovement = currentClickTarget - transform.position;
-        }
-        else
-        {
-            vectorMovement = Vector3.zero;
-        }
-        thirdPersonCharacter.Move(vectorMovement, false, false);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.black;
+        Gizmos.DrawLine(transform.position, clickPoint);
+        Gizmos.DrawSphere(currentDestination, 0.15f);
+        Gizmos.color = Color.green;
+        Gizmos.DrawSphere(clickPoint, 0.1f);
+
+        Gizmos.color = new Color(255f, 0.0f, 0.0f, 0.5f);
+        Gizmos.DrawWireSphere(transform.position, attackMoveStopRadius);
+    }
+
+    private Vector3 ShortDestination(Vector3 destination, float shortening)
+    {
+        Vector3 reductionVector = (destination - transform.position).normalized * shortening;
+        return destination - reductionVector;
     }
 }
 
