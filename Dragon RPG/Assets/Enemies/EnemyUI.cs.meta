@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b1946e1c1bae1c34ba2666ebb3463952
+timeCreated: 1497136747
+licenseType: Pro
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - enemyCanvasPrefab: {fileID: 1311539807392560, guid: 9a9d70d10b9331d469e57254147e0430,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
